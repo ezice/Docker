@@ -3,12 +3,12 @@ set -e
 
 # if command starts with an option, prepend mysqld
 if [ "${1:0:1}" = '-' ]; then
-	set -- mysqld "$@"
+	set -- mysqld_safe "$@"
 fi
 
-if [ "$1" = 'mysqld' ]; then
+if [ "$1" = 'mysqld_safe' ]; then
 	# Get config
-	DATADIR="$("$@" --verbose --help --innodb-read-only 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
+	DATADIR="/var/lib/mysql"
 
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
@@ -21,10 +21,10 @@ if [ "$1" = 'mysqld' ]; then
 		chown -R mysql:mysql "$DATADIR"
 
 		echo 'Initializing database'
-		mysqld --initialize-insecure=on --datadir="$DATADIR"
+                mysql_install_db --user=mysql -ldata=/var/lib/mysql
 		echo 'Database initialized'
 
-		mysqld --user=mysql --datadir="$DATADIR" --skip-networking &
+		/usr/libexec/mysqld --user=mysql --datadir="$DATADIR" --skip-networking &
 		pid="$!"
 
 		mysql=( mysql --protocol=socket -uroot )
