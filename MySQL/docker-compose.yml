@@ -1,0 +1,15 @@
+spmysql:
+  image: mysql/ut-rhel6-mysql57-data
+  ports:
+   - "3306"
+  environment:
+   - MYSQL_ROOT_PASSWORD=thispass 
+   - MYSQL_USER=identityiq 
+   - MYSQL_PASSWORD=thispass 
+   - MYSQL_DATABASE=identityiq
+web:
+  image: mysql/ut-rhel6-sp-my57
+  links:
+   - spmysql
+  volumes:
+   - /var/log/docker/SailPoint:/var/log
